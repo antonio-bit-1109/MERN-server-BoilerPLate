@@ -1,3 +1,4 @@
+require("dotenv").config();
 // inizializzare il server in express
 const express = require("express");
 const app = express();
@@ -16,6 +17,9 @@ const corsOptions = require("./config/corsOptions");
 const PORT = process.env.PORT || 3500;
 
 // _____________________________________ inizio dei middlewere _________________________________________________
+
+//utilizzare variabile da .env
+// console.log(process.env.MYVAR);
 
 app.use(logger);
 app.use(cors(corsOptions));
