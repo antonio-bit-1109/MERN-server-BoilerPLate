@@ -5,9 +5,15 @@ const app = express();
 // aggiungere il metodo per inizializzare le route sul server
 const path = require("path");
 
+//importo il logger.js
+const { logger } = require("./middlewere/logger");
+
 // porta di ascolto del server, alla quale collegarci per accedere al server in locale.
 const PORT = process.env.PORT || 3500;
 
+// _____________________________________ inizio dei middlewere _________________________________________________
+
+app.use(logger);
 //MIDDLEWERE per abilitare il server alla ricezione e invio di json.
 app.use(express.json());
 
