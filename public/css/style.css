@@ -4,6 +4,12 @@ h1 {
     color: rgb(255, 255, 255);
     font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
+h2 {
+    font-size: 4em;
+    margin-block: 1.5rem;
+    color: rgb(255, 255, 255);
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+}
 
 body {
     height: 80vh;
@@ -16,5 +22,10 @@ body {
 
 p {
     color: white;
-    font-size: 4rem;
+    font-size: 2rem;
+}
+
+.width {
+    width: 200px;
+    height: 200px;
 }
