@@ -5,9 +5,9 @@ const app = express();
 // aggiungere il metodo per inizializzare le route sul server
 const path = require("path");
 //importo il logger.js
-const { logger, logEvents } = require("./middlewere/logger");
+const { logger, logEvents } = require("./middleware/logger");
 // importo file per gestione errori
-const errorHandler = require("./middlewere/errorHandler");
+const errorHandler = require("./middleware/errorHandler");
 //importo modulo per poter utilizzare cookie sul server
 const cookieParser = require("cookie-parser");
 // importo modulo per gestire errore cors. SE SI IMPORTA SOLO CORS API PUBBLICA
@@ -37,7 +37,11 @@ app.use(cookieParser());
 // percorso dal quale andare a prendere file statici (immagini, foto , svg ecc..) un po come per la cartella public inr eact, non c'è bisogno di specificare nel percorso anche public.
 app.use("/", express.static(path.join(__dirname, "public")));
 
+//se arriva una richiesta dal client richiedendo il percorso "/" lo rimando a ./routes/root che serve index.html (controlla in root.js)
 app.use("/", require("./routes/root"));
+
+//se arriva una richiesta dal client richiedendo il percorso "/Users" lo rimando a ./routes/userRoute che, a seconda che la richiesta sia una get,post,put,delete dirotta ad uno specifico controller.
+app.use("/Users", require("./routes/userRoute"));
 
 // se la rotta della richiesta dal client non viene trovata, il server ritorna una risposta di 404 in uno dei 3 formati descritti
 //(.json , .txt , .html)
