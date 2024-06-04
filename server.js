@@ -1,17 +1,14 @@
 // inizializzare il server in express
 const express = require("express");
 const app = express();
-
 // aggiungere il metodo per inizializzare le route sul server
 const path = require("path");
-
 //importo il logger.js
 const { logger } = require("./middlewere/logger");
 // importo file per gestione errori
 const errorHandler = require("./middlewere/errorHandler");
 //importo modulo per poter utilizzare cookie sul server
 const cookieParser = require("cookie-parser");
-
 // importo modulo per gestire errore cors. SE SI IMPORTA SOLO CORS API PUBBLICA
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
