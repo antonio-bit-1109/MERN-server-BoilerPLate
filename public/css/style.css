@@ -29,3 +29,7 @@ p {
     width: 33.33%;
     height: auto;
 }
+
+a {
+    color: red;
+}
