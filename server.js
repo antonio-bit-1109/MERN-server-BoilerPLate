@@ -7,16 +7,24 @@ const path = require("path");
 
 //importo il logger.js
 const { logger } = require("./middlewere/logger");
+// importo file per gestione errori
+const errorHandler = require("./middlewere/errorHandler");
+//importo modulo per poter utilizzare cookie sul server
+const cookieParser = require("cookie-parser");
 
+// importo modulo per gestire errore cors. SE SI IMPORTA SOLO CORS API PUBBLICA
+const cors = require("cors");
+const corsOptions = require("./config/corsOptions");
 // porta di ascolto del server, alla quale collegarci per accedere al server in locale.
 const PORT = process.env.PORT || 3500;
 
 // _____________________________________ inizio dei middlewere _________________________________________________
 
 app.use(logger);
+app.use(cors(corsOptions));
 //MIDDLEWERE per abilitare il server alla ricezione e invio di json.
 app.use(express.json());
-
+app.use(cookieParser());
 //MIDDLEWERE -- DIRE AL SERVER DOVE PRENDERE FILE STATICI.
 // percorso dal quale andare a prendere file statici (immagini, foto , svg ecc..) un po come per la cartella public inr eact, non c'è bisogno di specificare nel percorso anche public.
 app.use("/", express.static(path.join(__dirname, "public")));
@@ -36,5 +44,7 @@ app.all("*", (req, res) => {
         res.type("txt").send("404 Not Found");
     }
 });
+
+app.use(errorHandler);
 
 app.listen(PORT, () => console.log(`server is running on port ${PORT}`));
