@@ -5,7 +5,7 @@ const app = express();
 // aggiungere il metodo per inizializzare le route sul server
 const path = require("path");
 //importo il logger.js
-const { logger } = require("./middlewere/logger");
+const { logger, logEvents } = require("./middlewere/logger");
 // importo file per gestione errori
 const errorHandler = require("./middlewere/errorHandler");
 //importo modulo per poter utilizzare cookie sul server
@@ -13,6 +13,12 @@ const cookieParser = require("cookie-parser");
 // importo modulo per gestire errore cors. SE SI IMPORTA SOLO CORS API PUBBLICA
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
+// importa la connection string al DB di mongodb
+const connectDB = require("./config/dbConn");
+
+// importo mongoose (ODM) per mongo DB, oggetto che aiuta nelle configurazioni delle tabelle in mongodb
+const mongoose = require("mongoose");
+
 // porta di ascolto del server, alla quale collegarci per accedere al server in locale.
 const PORT = process.env.PORT || 3500;
 
@@ -20,6 +26,7 @@ const PORT = process.env.PORT || 3500;
 
 //utilizzare variabile da .env
 // console.log(process.env.MYVAR);
+connectDB();
 
 app.use(logger);
 app.use(cors(corsOptions));
@@ -48,4 +55,14 @@ app.all("*", (req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`server is running on port ${PORT}`));
+// funzione che tenta di connettersi una sola volta a mongoDB
+mongoose.connection.once("open", () => {
+    console.log("connected to MongoDB.");
+    app.listen(PORT, () => console.log(`server is running on port ${PORT}`));
+});
+
+// se la connessione al db dovesse fallire verrà creato un file di log con il recap dell errore e fornirà informazioni quali numero errore, status, nome client ecc..
+mongoose.connection.on("error", (err) => {
+    console.log(err);
+    logEvents(`${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`, "mongoErrLog.log");
+});
