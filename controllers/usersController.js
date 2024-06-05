@@ -166,6 +166,10 @@ const softDeleteUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: "utente non trovato." });
     }
 
+    if (user.active === false) {
+        return res.json({ message: "l'utente selezionato è gia stato disattivato." });
+    }
+
     user.active = false;
     const nomeUtente = user.username;
     await user.save();
