@@ -6,8 +6,10 @@ const usersController = require("../controllers/usersController");
 router
     .route("/")
     .get(usersController.GetAllUsers)
-    .post(usersController.CreateUser)
+    .post(usersController.CreateNewUser)
     .patch(usersController.EditUser)
     .delete(usersController.DeleteUser);
+
+router.route("/:id").get(usersController.GetSingleUser);
 
 module.exports = router;
