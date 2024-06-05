@@ -1,5 +1,4 @@
-const user = require("../models/User");
-const note = require("../models/Note");
+const Notes = require("../models/Note");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
@@ -10,7 +9,7 @@ const User = require("../models/User");
 const GetAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select("-password").lean();
 
-    if (!users) {
+    if (!users || users.length <= 0) {
         return res.status(400).json({ message: "No users found." });
     }
     if (users) {
@@ -22,13 +21,20 @@ const GetAllUsers = asyncHandler(async (req, res) => {
 //route GET /users/:id
 //@access Private
 const GetSingleUser = asyncHandler(async (req, res) => {
-    const SingleUser = await User.findById(req.params.id).select("-password").lean();
+    // const SingleUser = await User.findById(req.params.id).select("-password").lean();
+    const { id } = req.body;
 
-    if (!SingleUser) {
+    if (!id) {
+        return res.status(400).json({ message: "you have to gime me ID, BITCH!" });
+    }
+
+    const singleUser = await User.findById(id).lean().exec();
+
+    if (!singleUser) {
         return res.status(400).json({ message: "User not found." });
     }
-    if (SingleUser) {
-        return res.json(SingleUser);
+    if (singleUser) {
+        return res.json(singleUser);
     }
 });
 
@@ -53,7 +59,7 @@ const CreateNewUser = asyncHandler(async (req, res) => {
     }
 
     //cripto la password se i controlli precedenti vengono superati
-    const hashedPassw = bcrypt.hash(password, 10); // criptazione pass sale = 10
+    const hashedPassw = await bcrypt.hash(password, 10); // criptazione pass sale = 10
 
     // creo oggetto user che verra salvato nel dbMongo.
     const UserObj = { username, password: hashedPassw, roles };
@@ -72,12 +78,100 @@ const CreateNewUser = asyncHandler(async (req, res) => {
 //@desc edit a user
 //route PATCH /users
 //@access Private
-const EditUser = asyncHandler(async (req, res) => {});
+const EditUser = asyncHandler(async (req, res) => {
+    const { id, username, password, roles, active } = req.body;
+
+    // confirm data
+    if (!id || !username || !Array.isArray(roles) || roles.length <= 0 || typeof active !== "boolean") {
+        return res.status(400).json({ message: "missing some required data." });
+    }
+
+    const user = await User.findById(id).exec();
+
+    if (!user) {
+        return res.status(400).json({ message: "user not found." });
+    }
+
+    // check duplicate
+    const duplicate = await User.findOne({ username }).lean().exec();
+
+    // consentire edit solo allo user originale
+    if (duplicate && duplicate?._id.toString() !== id) {
+        return res.status(409).json({ message: "duplicate username." });
+    }
+
+    user.username = username;
+    user.roles = roles;
+    user.active = active;
+
+    if (password) {
+        //hashPasswrd
+        user.password = await bcrypt.hash(password, 10);
+    }
+
+    const updatedUser = await user.save();
+    res.json({ message: `${updatedUser.username} updated.` });
+});
 
 //@desc delete a user
 //route DELETE /users
 //@access Private
-const DeleteUser = asyncHandler(async (req, res) => {});
+const DeleteUser = asyncHandler(async (req, res) => {
+    const { id } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ message: "user ID is required to perform this operation." });
+    }
+
+    // non cancello user se ha delle note aperte.
+
+    const notes = await Notes.findOne({ referredUser: id }).lean().exec();
+
+    if (notes?.length) {
+        return res.status(400).json({ message: "You can't delete a user with defined notes." });
+    }
+
+    const user = await User.findById(id).exec();
+
+    if (!user) {
+        return res.status(400).json({ message: "user not found." });
+    }
+
+    const userName = user.username;
+    const userId = user._id;
+
+    const result = await user.deleteOne();
+
+    if (result) {
+        const reply = `Username ${userName} with ID ${userId} has been eliminated.`;
+        res.json(reply);
+    } else {
+        res.status(400).json({ message: "errore nella cancellazione dell'utente." });
+    }
+});
+
+//@desc soft delete a user
+//route POST /users
+//@access Private
+const softDeleteUser = asyncHandler(async (req, res) => {
+    const { id } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ message: "mi devi fornire l'id del tizio da cancellare. Riprova." });
+    }
+
+    const user = await User.findById(id);
+
+    if (!user) {
+        return res.status(400).json({ message: "utente non trovato." });
+    }
+
+    user.active = false;
+    const nomeUtente = user.username;
+    await user.save();
+
+    res.status(200).json({ message: `utente ${nomeUtente} disabilitato correttamente.` });
+});
 
 module.exports = {
     GetAllUsers,
@@ -85,4 +179,5 @@ module.exports = {
     CreateNewUser,
     DeleteUser,
     GetSingleUser,
+    softDeleteUser,
 };

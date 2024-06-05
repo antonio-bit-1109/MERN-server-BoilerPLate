@@ -10,6 +10,7 @@ router
     .patch(usersController.EditUser)
     .delete(usersController.DeleteUser);
 
-router.route("/:id").get(usersController.GetSingleUser);
+router.route("/get-user").post(usersController.GetSingleUser);
+router.route("/user-soft-delete").post(usersController.softDeleteUser);
 
 module.exports = router;
