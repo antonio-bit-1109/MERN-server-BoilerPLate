@@ -43,6 +43,9 @@ app.use("/", require("./routes/root"));
 //se arriva una richiesta dal client richiedendo il percorso "/Users" lo rimando a ./routes/userRoute che, a seconda che la richiesta sia una get,post,put,delete dirotta ad uno specifico controller.
 app.use("/Users", require("./routes/userRoute"));
 
+//rotta per gestire una richiesta client per le notes.
+app.use("/Notes", require("./routes/notesRoute"));
+
 // se la rotta della richiesta dal client non viene trovata, il server ritorna una risposta di 404 in uno dei 3 formati descritti
 //(.json , .txt , .html)
 app.all("*", (req, res) => {
