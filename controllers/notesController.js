@@ -7,7 +7,7 @@ const User = require("../models/User");
 //route GET /Notes/:id (idutente passato nell url)
 //@access Private
 const GetAllUserNotes = asyncHandler(async (req, res) => {
-    const UserId = req.params.id;
+    const UserId = req.params.userId;
 
     if (!UserId) {
         return res.status(400).json({ message: "UserId required." });
@@ -15,7 +15,7 @@ const GetAllUserNotes = asyncHandler(async (req, res) => {
 
     const notes = await Notes.find({ UserId: UserId }).select().exec();
 
-    if (!notes) {
+    if (!notes || notes.length <= 0) {
         return res.status(400).json({ message: "there are no notes for selected user." });
     }
 
@@ -25,7 +25,7 @@ const GetAllUserNotes = asyncHandler(async (req, res) => {
 });
 
 const CreateNewNote = asyncHandler(async (req, res) => {
-    const UserId = req.params.id;
+    const UserId = req.params.userId;
     const { title, text } = req.body;
 
     // controllo se mi arrivano tutti i dati
@@ -65,7 +65,7 @@ const EditNote = asyncHandler(async (req, res) => {
     };
 
     // id dello user nel url
-    const UserId = req.params.id;
+    const UserId = req.params.userId;
     // id della nota da modificare nel body
     const { IdNote, titleBody, textBody } = req.body;
 
@@ -83,22 +83,91 @@ const EditNote = asyncHandler(async (req, res) => {
         returnStatemen(message3);
     }
 
-    const Note = await Notes.find({ UserId: UserId, _id: IdNote }).exec();
-
-    if (text) {
-        Note.set({ text: textBody });
-    }
-    if (title) {
-        Note.set({ title: titleBody });
+    const note = await Notes.findOne({ UserId: UserId, _id: IdNote }).exec();
+    const user = await User.findOne({ _id: UserId }).lean().exec();
+    if (!note) {
+        return res.status(400).json({ message: "nota non trovata." });
     }
 
-    await Note.save();
+    if (textBody && textBody.trim() !== "") {
+        // note.set({ text: textBody });
+        note.text = textBody;
+    }
+    if (titleBody && titleBody.trim() !== "") {
+        note.title = titleBody;
+    }
 
-    return res.status(200).json({ message: `nota ${IdNote} modificata con successo.` });
+    await note.save();
+
+    return res.status(200).json({ message: `nota ${IdNote}, dello user ${user.username} modificata con successo.` });
 });
 
-const DeleteNote = asyncHandler(async (req, res) => {});
-const GetSingleNote = asyncHandler(async (req, res) => {});
+const DeleteNote = asyncHandler(async (req, res) => {
+    const UserId = req.params.userId;
+
+    const { IdNote } = req.body;
+
+    if (!UserId) {
+        return res.status(400).json({ message: "non hai fornito userId" });
+    }
+
+    if (!IdNote) {
+        return res.status(400).json({ message: "non hai fornito IdNote" });
+    }
+    const user = await User.findById(UserId).lean().exec();
+
+    await Notes.deleteOne({ _id: IdNote });
+
+    return res
+        .status(200)
+        .json({ message: `la nota con ID ${IdNote}, dell utente ${user.username} cancellata con successo.` });
+});
+
+const GetSingleNote = asyncHandler(async (req, res) => {
+    const UserId = req.params.userId;
+    const { NoteId } = req.body;
+    //controllo dati
+    if (!UserId) {
+        return res.status(400).json({ message: "userId non trovato." });
+    }
+
+    if (!NoteId) {
+        return res.status(400).json({ message: "id nota non trovato." });
+    }
+
+    const singleNote = await Notes.findById(NoteId).lean().exec();
+
+    if (!singleNote) {
+        return res.status(400).json({ message: "nota non trovata." });
+    }
+
+    return res.status(200).json(singleNote);
+});
+
+//inviare una post per impostare la nota come completa
+const CheckCompletedNote = asyncHandler(async (req, res) => {
+    const UserId = req.params.userId;
+    const { NoteId } = req.body;
+
+    if (!UserId || !NoteId) {
+        return res.status(400).json({ message: "all fields are required." });
+    }
+
+    const note = await Notes.findOne({ UserId: UserId, _id: NoteId }).exec();
+
+    if (!note) {
+        return res.status(400).json({ message: "nessuna nota trovata corrispondente all'utente selezionato." });
+    }
+
+    if (note.isCompleted === true) {
+        return res.json("la nota è già stata completata.");
+    }
+
+    note.isCompleted = true;
+    await note.save();
+
+    return res.status(200).json({ message: "nota impostata come completata." });
+});
 
 module.exports = {
     GetAllUserNotes,
@@ -106,4 +175,5 @@ module.exports = {
     EditNote,
     DeleteNote,
     GetSingleNote,
+    CheckCompletedNote,
 };

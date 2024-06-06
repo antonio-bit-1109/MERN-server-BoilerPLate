@@ -10,8 +10,8 @@ router
     .patch(notesController.EditNote)
     .delete(notesController.DeleteNote);
 
-router.route("/get-note").get(notesController.GetSingleNote);
-// router.route("/get-user").post(usersController.GetSingleUser);
-// router.route("/user-soft-delete").post(usersController.softDeleteUser);
+router.route("/get-note/:userId").post(notesController.GetSingleNote);
+
+router.route("/completeNote/:userId").post(notesController.CheckCompletedNote);
 
 module.exports = router;
