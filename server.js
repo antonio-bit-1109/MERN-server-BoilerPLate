@@ -46,6 +46,7 @@ app.use("/Users", require("./routes/userRoute"));
 //rotta per gestire una richiesta client per le notes.
 app.use("/Notes", require("./routes/notesRoute"));
 
+app.use("/Login", require("./routes/loginRoute"));
 // se la rotta della richiesta dal client non viene trovata, il server ritorna una risposta di 404 in uno dei 3 formati descritti
 //(.json , .txt , .html)
 app.all("*", (req, res) => {
