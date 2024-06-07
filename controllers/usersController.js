@@ -7,7 +7,7 @@ const User = require("../models/User");
 //route GET /users
 //@access Private
 const GetAllUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({ active: true }).select("-password").lean();
+    const users = await User.find().select("-password").lean();
 
     if (!users || users.length <= 0) {
         return res.status(400).json({ message: "No users found." });
