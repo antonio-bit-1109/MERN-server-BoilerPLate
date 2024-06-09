@@ -11,6 +11,7 @@ router
     .patch(usersController.EditUser)
     .delete(usersController.DeleteUser);
 
+// autenticazione prima di accedere al action  del getSingleUser
 router.route("/get-user").post(autenticateMiddleware, usersController.GetSingleUser);
 router.route("/user-soft-delete").post(usersController.softDeleteUser);
 

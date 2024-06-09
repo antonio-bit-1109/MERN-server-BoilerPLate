@@ -16,7 +16,7 @@ const GetAllUserNotes = asyncHandler(async (req, res) => {
     const notes = await Notes.find({ UserId: UserId }).select().exec();
 
     if (!notes || notes.length <= 0) {
-        return res.status(400).json({ message: "there are no notes for selected user." });
+        return res.status(400).json({ message: "there are no notes for this user." });
     }
 
     if (notes) {
