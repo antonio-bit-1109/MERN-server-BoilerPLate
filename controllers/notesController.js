@@ -49,7 +49,7 @@ const CreateNewNote = asyncHandler(async (req, res) => {
 
     // se ricevo indietro la nota creata da mongoDB allora la creazione è andata a buon fine.
     if (note) {
-        return res.status(200).json("nota creata con successo.");
+        return res.status(200).json({ message: "nota creata con successo." });
     }
 
     return res.status(400).json({ message: "errore  nella creazione della nota per l'utente selezionato." });
@@ -160,7 +160,7 @@ const CheckCompletedNote = asyncHandler(async (req, res) => {
     }
 
     if (note.isCompleted === true) {
-        return res.json("la nota è già stata completata.");
+        return res.json({ message: "la nota è già stata completata." });
     }
 
     note.isCompleted = true;

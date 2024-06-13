@@ -26,9 +26,13 @@ const autenticationUser = asyncHandler(async (req, res) => {
 
     const secretKey = process.env.TOKEN_JWT;
 
-    const tokenJwt = jwt.sign({ id: user._id, name: user.username, isActive: user.active }, secretKey, {
-        expiresIn: "7d",
-    });
+    const tokenJwt = jwt.sign(
+        { id: user._id, name: user.username, isActive: user.active, roles: user.roles },
+        secretKey,
+        {
+            expiresIn: "7d",
+        }
+    );
 
     return res.status(200).json({ token: tokenJwt });
 });

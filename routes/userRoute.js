@@ -7,7 +7,7 @@ const autenticateMiddleware = require("../middleware/auth");
 router
     .route("/")
     .get(usersController.GetAllUsers)
-    .post(usersController.CreateNewUser)
+    .post(autenticateMiddleware, usersController.CreateNewUser)
     .patch(usersController.EditUser)
     .delete(usersController.DeleteUser);
 
