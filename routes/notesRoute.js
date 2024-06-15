@@ -11,10 +11,10 @@ const verifyJWT = require("../middleware/verifyJWT");
 
 router
     .route("/:userId")
-    .get(notesController.GetAllUserNotes)
+    .get(verifyJWT, notesController.GetAllUserNotes)
     .post(verifyJWT, notesController.CreateNewNote)
     .patch(verifyJWT, notesController.EditNote)
-    .delete(notesController.DeleteNote);
+    .delete(verifyJWT, notesController.DeleteNote);
 
 router.route("/get-note/:userId").post(verifyJWT, notesController.GetSingleNote);
 

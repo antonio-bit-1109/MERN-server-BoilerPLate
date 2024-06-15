@@ -42,7 +42,7 @@ const autenticationUser = asyncHandler(async (req, res) => {
             },
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "1m" }
+        { expiresIn: "10m" }
     );
 
     // token per il refresh inviato al client
@@ -52,7 +52,7 @@ const autenticationUser = asyncHandler(async (req, res) => {
     // creare un cookie per mantenere la sessione dell'utente aperta. il token di refresh viene memorizzato in un cookie sicuro.
     // Se il token di accesso scade, il client invia il cookie contenente il token di refresh al server per ottenere un nuovo token di accesso.
 
-    //INVIO AL CLIENT IL COOKIE CONTENENTE IL REFRESH TOKEN
+    // INVIO AL CLIENT IL COOKIE CONTENENTE IL REFRESH TOKEN
     res.cookie("jwt", refreshToken, {
         httpOnly: true, // Questa opzione impedisce l'accesso al cookie tramite JavaScript nel browser del client. Questo aiuta a prevenire attacchi cross-site scripting (XSS) in cui un attaccante potrebbe cercare di rubare il cookie.
         secure: true, //Questa opzione indica che il cookie dovrebbe essere inviato solo su connessioni sicure HTTPS. Se impostato su true, il cookie non verrà inviato se la connessione è HTTP.
@@ -60,8 +60,15 @@ const autenticationUser = asyncHandler(async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000, //Questa opzione imposta la durata del cookie in millisecondi. In questo caso, il cookie è impostato per scadere dopo 7 giorni. maxAge è calcolato come 7 giorni * 24 ore * 60 minuti * 60 secondi * 1000 millisecondi.
     });
 
+    // res.cookie("jwt", refreshToken, {
+    //     httpOnly: true,
+    //     secure: false, // Modificato per testare in locale senza HTTPS
+    //     sameSite: "lax", // Modificato per compatibilità con connessioni non-HTTPS in locale
+    //     maxAge: 7 * 24 * 60 * 60 * 1000,
+    // });
+
     // INVIO AL CLIENT UN JSON CON IL TOKEN DI ACCESSO
-    return res.json({ accessToken });
+    res.json({ accessToken });
 });
 
 // action che servirà per rinnovare il token dell utente.
@@ -103,7 +110,7 @@ const refresh = (req, res) => {
                     },
                 },
                 process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: "1m" }
+                { expiresIn: "10m" }
             );
 
             return res.json({ accessToken });

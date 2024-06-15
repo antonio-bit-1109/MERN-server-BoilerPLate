@@ -10,7 +10,7 @@ const corsOptions = {
         }
     },
 
-    credentials: true,
+    credentials: true, // permette invio di cookie
     optionsSuccessStatus: 200,
 };
 
