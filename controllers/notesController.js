@@ -169,6 +169,26 @@ const CheckCompletedNote = asyncHandler(async (req, res) => {
     return res.status(200).json({ message: "nota impostata come completata." });
 });
 
+const UnCheckCompletedNote = asyncHandler(async (req, res) => {
+    const UserId = req.params.userId;
+    const { NoteId } = req.body;
+
+    if (!UserId) {
+        res.status(400).json({ message: "UserId non fornito. Riprova" });
+    }
+
+    const note = await Notes.findOne({ UserId: UserId, _id: NoteId }).exec();
+
+    if (!note) {
+        return res.status(400).json({ message: "nessuna nota trovata." });
+    }
+
+    note.isCompleted = false;
+    await note.save();
+
+    return res.status(200).json({ message: "nota modificata con successo." });
+});
+
 module.exports = {
     GetAllUserNotes,
     CreateNewNote,
@@ -176,4 +196,5 @@ module.exports = {
     DeleteNote,
     GetSingleNote,
     CheckCompletedNote,
+    UnCheckCompletedNote,
 };

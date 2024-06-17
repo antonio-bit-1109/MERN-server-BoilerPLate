@@ -19,5 +19,6 @@ router
 router.route("/get-note/:userId").post(verifyJWT, notesController.GetSingleNote);
 
 router.route("/completeNote/:userId").post(verifyJWT, notesController.CheckCompletedNote);
+router.route("/uncheckNote/:userId").post(verifyJWT, notesController.UnCheckCompletedNote);
 
 module.exports = router;

@@ -17,7 +17,7 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
 
     // IN SOSTANZA SE IL TOKEN PRESENTA AL SUO INTERNO GLI STESSI DATI CRIPTATI DEFINITI AL MOMENTO DLE LOGIN CONSENTE L'ACCESSO ALL'ACTION, ALTRIMENTI TORNA ERRORE,
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if (err) return res.status(403).json({ message: "Forbidden." });
+        if (err) return res.status(403).json({ message: "Forbidden. errore." });
         req.username = decoded.UserInfo.username;
         req.userId = decoded.UserInfo.userId;
         req.roles = decoded.UserInfo.roles;
