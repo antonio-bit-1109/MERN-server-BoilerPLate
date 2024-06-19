@@ -19,6 +19,9 @@ const connectDB = require("./config/dbConn");
 // importo mongoose (ODM) per mongo DB, oggetto che aiuta nelle configurazioni delle tabelle in mongodb
 const mongoose = require("mongoose");
 
+// importo file-upload per la gestione degli upload su server
+// const fileUpload = require("express-fileupload");
+
 // porta di ascolto del server, alla quale collegarci per accedere al server in locale.
 const PORT = process.env.PORT || 3500;
 
@@ -33,6 +36,7 @@ app.use(cors(corsOptions));
 //MIDDLEWERE per abilitare il server alla ricezione e invio di json.
 app.use(express.json());
 app.use(cookieParser());
+// app.use(fileUpload());
 //MIDDLEWERE -- DIRE AL SERVER DOVE PRENDERE FILE STATICI.
 // percorso dal quale andare a prendere file statici (immagini, foto , svg ecc..) un po come per la cartella public inr eact, non c'è bisogno di specificare nel percorso anche public.
 app.use("/", express.static(path.join(__dirname, "public")));
@@ -47,6 +51,7 @@ app.use("/Users", require("./routes/userRoute"));
 app.use("/Notes", require("./routes/notesRoute"));
 
 app.use("/Auth", require("./routes/authRoute"));
+
 // se la rotta della richiesta dal client non viene trovata, il server ritorna una risposta di 404 in uno dei 3 formati descritti
 //(.json , .txt , .html)
 app.all("*", (req, res) => {

@@ -28,7 +28,7 @@ const GetSingleUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: "you have to gime me ID, BITCH!" });
     }
 
-    const singleUser = await User.findById(id).lean().exec();
+    const singleUser = await User.findById(id).select("-password").lean().exec();
 
     if (!singleUser) {
         return res.status(400).json({ message: "User not found." });
@@ -177,6 +177,32 @@ const softDeleteUser = asyncHandler(async (req, res) => {
     res.status(200).json({ message: `utente ${nomeUtente} disabilitato correttamente.` });
 });
 
+const changeImageProfile = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+    const imageProfile = req.files;
+
+    console.log(imageProfile);
+    console.log(userId);
+    if (imageProfile) {
+        return res.status(200).json({ message: "file ricevuto" });
+    }
+    // if (!userId) {
+    //     return res.status(400).json({ message: "userId non fornito." });
+    // }
+
+    // if (!imageProfile) {
+    //     return res.status(400).json({ message: "immagine del profilo non fornita." });
+    // }
+
+    // const user = await User.findById(userId).lean().exec();
+
+    // if (!user) {
+    //     return res.status(400).json({ message: "utente non trovato." });
+    // }
+
+    // user.imageProfile = imageProfile;
+});
+
 module.exports = {
     GetAllUsers,
     EditUser,
@@ -184,4 +210,5 @@ module.exports = {
     DeleteUser,
     GetSingleUser,
     softDeleteUser,
+    changeImageProfile,
 };
