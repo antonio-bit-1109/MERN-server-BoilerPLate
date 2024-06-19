@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 
 // middleware utilizzato per controllare il token inviato dal client per accedere ad una route
-const verifyJWT = asyncHandler(async (req, res, next) => {
+const verifyAdminRole = asyncHandler(async (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization;
 
     // se il tken non viene trovato ritorna un errore
@@ -19,6 +19,15 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) return res.status(403).json({ message: "Forbidden. errore." });
 
+        //   if (!decoded.UserInfo.roles.some((role) => role.toLowerCase() === "admin")) {
+        //       return res.status(400).json({ message: "non sei autorizzato." });
+        //   }
+
+        console.log(decoded.UserInfo.roles);
+        if (!decoded.UserInfo.roles.some((role) => role.toLowerCase() === "admin")) {
+            return res.status(400).json({ message: "non sei autorizzato." });
+        }
+
         req.username = decoded.UserInfo.username;
         req.userId = decoded.UserInfo.userId;
         req.roles = decoded.UserInfo.roles;
@@ -27,4 +36,4 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     });
 });
 
-module.exports = verifyJWT;
+module.exports = verifyAdminRole;
