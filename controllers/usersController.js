@@ -2,7 +2,7 @@ const Notes = require("../models/Note");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
-
+const path = require("path");
 //@desc get all users che sono active
 //route GET /users
 //@access Private
@@ -177,30 +177,53 @@ const softDeleteUser = asyncHandler(async (req, res) => {
     res.status(200).json({ message: `utente ${nomeUtente} disabilitato correttamente.` });
 });
 
+// il controllo sul fatto che esista o no l'immagine viene già fatto nel middleware preceedente nella route che porta a questo metodo.
 const changeImageProfile = asyncHandler(async (req, res) => {
     const { userId } = req.params;
-    const imageProfile = req.files;
+    const file = req.files;
 
-    console.log(imageProfile);
+    console.log(file);
     console.log(userId);
-    if (imageProfile) {
-        return res.status(200).json({ message: "file ricevuto" });
+
+    for (const key of Object.keys(file)) {
+        const isSaveSuccessfully = await FindUserAndUpload(file, key);
+
+        if (isSaveSuccessfully) {
+            const filePath = path.join(__dirname, "../public/upload", file[key].name);
+
+            try {
+                await new Promise((resolve, reject) => {
+                    file[key].mv(filePath, (err) => {
+                        if (err) reject(err);
+                        resolve(); // Risolvi la promessa anche senza errore
+                    });
+                });
+                return res.status(200).json({ message: "file caricato con successo" });
+            } catch (err) {
+                return res.status(500).json({ message: `errore : ${err}` });
+            }
+        } else {
+            return res.status(500).json({ message: "errore con reperimento o salvataggio dello user." });
+        }
     }
-    // if (!userId) {
-    //     return res.status(400).json({ message: "userId non fornito." });
-    // }
 
-    // if (!imageProfile) {
-    //     return res.status(400).json({ message: "immagine del profilo non fornita." });
-    // }
+    // definizione della funzione incaricata di trovare lo user e caricare nel campo immagine l'immagine prelevata dal file
+    async function FindUserAndUpload(UploadedFile, objKey) {
+        try {
+            const user = await User.findById(userId).exec();
 
-    // const user = await User.findById(userId).lean().exec();
+            if (!user) {
+                return false;
+            }
 
-    // if (!user) {
-    //     return res.status(400).json({ message: "utente non trovato." });
-    // }
-
-    // user.imageProfile = imageProfile;
+            //imposto il campo immagine dell utente con immagine appena ricevuta dal client
+            user.imageProfile = UploadedFile[objKey].name;
+            await user.save();
+            return true;
+        } catch (err) {
+            return err;
+        }
+    }
 });
 
 module.exports = {
