@@ -42,7 +42,7 @@ const autenticationUser = asyncHandler(async (req, res) => {
             },
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "10m" }
+        { expiresIn: "10s" }
     );
 
     // token per il refresh inviato al client
@@ -110,7 +110,7 @@ const refresh = (req, res) => {
                     },
                 },
                 process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: "10m" }
+                { expiresIn: "10s" }
             );
 
             return res.json({ accessToken });
