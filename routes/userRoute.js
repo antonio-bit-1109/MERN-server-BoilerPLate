@@ -17,8 +17,8 @@ const fileSizeLimiter = require("../middleware/fileSizeLimiter");
 
 router
     .route("/")
-    .get(verifyAdminRole, usersController.GetAllUsers)
-    .post(verifyAdminRole, usersController.CreateNewUser)
+    .get(verifyJWT, verifyAdminRole, usersController.GetAllUsers)
+    .post(verifyAdminRole, verifyJWT, usersController.CreateNewUser)
     .patch(verifyJWT, usersController.EditUser)
     .delete(verifyJWT, usersController.DeleteUser);
 
